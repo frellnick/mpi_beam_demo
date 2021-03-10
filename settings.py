@@ -1,13 +1,19 @@
 from decouple import config
+import os
 import inspect
+
 from utils.singleton import SingletonType
+
 
 class Config(metaclass=SingletonType):
     def __init__(self, default=True):
+
         super().__init__()
-        self.DEV = config('DEV', cast=bool)
 
+        self.ENVIRONMENT = config('ENVIRONMENT', cast=str)
 
+        self.LOCAL_FILE_DIR = _make_abs_path(
+            config('LOCAL_FILE_DIR', cast=str))
 
 
     def __repr__(self):
@@ -32,5 +38,12 @@ class Config(metaclass=SingletonType):
         return d
 
 
+# Local Utils
+def _make_abs_path(path):
+    cp = path.split('/')
+    return os.path.join(os.getcwd(), *cp)
+
+
+# Builder Fn
 def get_config(default=True):
     return Config(default)

@@ -2,7 +2,12 @@
 Port of MPI Demo system to Apache Beam components
 
 ## Mock Ingest
-Loads .csv into pandas and dumps to sqlite table in common database
+Load data from local files or test database as if they'd been ingested.
+
+Controlled by ENVIRONMENT in settings.ini:
+* DEV - read from local csv
+* STAGING - Not Implemented (staging_database)
+* PRODUCTION - Not Implemented (production_database)
 
 ## MPI
 Exposes API for processing ingested tables
@@ -40,7 +45,7 @@ Run all tests with:
 pytest
 ```
 
-### Managing Conda Environments
+### Managing Conda Environments & Runners
 
 **Create** cloned environment with
 
@@ -57,6 +62,11 @@ conda env export > environment.yml
 * Check that pip dependencies written in.
 * Delete prefix at end of file (won't work across users, OS)
 
+**Runners** require a 'requirements.txt' file.  Create with:
+```bash
+pip freeze > requirements.txt
+```
+* Ensure that all packages are pypy packages, else runners will not be able to install
 
 
 
