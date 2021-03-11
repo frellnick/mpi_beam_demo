@@ -58,3 +58,14 @@ sneighbourhood_identifiers = [
     'middle_name_pool',
     'gender_pool'
 ]
+
+
+
+
+# Mapping Utilities
+
+def is_mapped(field):
+    k = [k.lower() for k in colmap.keys()]
+    if field.lower() in k:
+        return colmap[field], False
+    return None, KeyError(f'{field} is not mapped.')

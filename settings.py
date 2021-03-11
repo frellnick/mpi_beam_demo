@@ -12,6 +12,8 @@ class Config(metaclass=SingletonType):
 
         self.ENVIRONMENT = config('ENVIRONMENT', cast=str)
 
+        self.LOGGING_LEVEL = config('LOGGING_LEVEL', cast=str)
+
         self.LOCAL_FILE_DIR = _make_abs_path(
             config('LOCAL_FILE_DIR', cast=str))
 
