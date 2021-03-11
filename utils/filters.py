@@ -1,6 +1,10 @@
 # filters.py
 
 
+import apache_beam as beam
+from assets.mapping import colmap
+
+
 def filter_mapped_columns(source_columns:list, keep_columns:list) -> list:
     """Return list of columns available for mapping from source list.
 
@@ -20,3 +24,9 @@ def filter_mapped_columns(source_columns:list, keep_columns:list) -> list:
     return list(
         set(source_columns).intersection(set(keep_columns))
     )
+
+
+
+class SubsetMapped(beam.DoFn):
+    def __init__(self, colmap=colmap):
+        self.colmap = colmap

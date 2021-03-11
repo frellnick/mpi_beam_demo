@@ -8,10 +8,7 @@ import apache_beam as beam
 from apache_beam.options.pipeline_options import PipelineOptions 
 from apache_beam.dataframe.convert import to_dataframe, to_pcollection
 
-from assets.mapping import *
-from utils.load import get_loader
-from utils.filters import filter_mapped_columns
-from utils.dataframe_transforms.standardize import StandardizeTransformer
+from pipelines.preprocess import run_preprocess
 
 import pandas as pd
 
@@ -35,31 +32,24 @@ def run(argv=None):
 
     known_args, pipeline_args = parser.parse_known_args(argv)
 
-    # Local imports to avoid pickling unnecessary libraries
-    l = get_loader()
-
 
     # Create Pipeline.
     with beam.Pipeline(options=PipelineOptions(pipeline_args)) as p:
+        
+        ##########################
+        # Load / Preprocess Data #
+        ##########################
+
+
+
         #########################
         # Creating the DataView #
         #########################
 
-        # Load Source Table
-        source_table = p | l(os.path.join(c.LOCAL_FILE_DIR, known_args.input))
-
-        # Create subset view
-        filtered_columns = filter_mapped_columns(
-                            list(source_table.columns), list(colmap.keys())
-                            )
-        df = source_table[filtered_columns]
-        
-        # TODO: Standardize Subset
-        t = StandardizeTransformer(filtered_columns)
-        df = df.apply(t)
-        # TODO: Dedup Subset
-
-        
+        raw, subset = run_preprocess(p, known_args.input)
+        _ = (
+            raw
+            | beam.Map(print))
         
         
     

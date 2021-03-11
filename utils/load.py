@@ -6,22 +6,48 @@ Prepare loading mechanism
 
 from settings import get_config
 
-from apache_beam.dataframe.io import read_csv 
+from apache_beam.io.textio import ReadFromText
+
+import csv
+from collections import OrderedDict
 
 
-config = get_config()
+def make_schema_from_csv(handle):
+    # Read first row and split into column headers
+    with open(handle, newline='') as csvfile:
+        r = csv.reader(csvfile, delimiter=',')
+        h = next(r)
 
-def _raise_not_implemented():
-    raise NotImplementedError('Loader Not Defined')
+    s = OrderedDict()
+    for i,x in enumerate(h):
+        s[x] = i
 
-loaders = {
-    'DEV': read_csv,
-    'STAGING': _raise_not_implemented,
-    'PRODUCTION': _raise_not_implemented
-}
+    return s
 
 
+def make_csv_coder(schema):
+    # Return string parser for CSV data
+    def _parser(element):
+        return csv.reader([element], delimiter=',')
+    
+    def _marshal_into_schema(columns, schema):
+        res = {}
+        for i, k in enumerate(schema.keys()):
+            if i < len(columns):
+                res[k] = columns[i]
+            else:
+                break
+        return res
 
-def get_loader(config=config):
-    return loaders[config.ENVIRONMENT]
+    def _coder(element):
+        columns = list(_parser(element))[0]
+        return _marshal_into_schema(columns, schema)
+    
+    return _coder
+
+        
+def make_standard_sql(handle):
+    # Query table data from BigQuery
+    pass
+
 
