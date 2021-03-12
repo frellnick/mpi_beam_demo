@@ -64,7 +64,7 @@ class _ReadData(beam.PTransform):
                         beam.io.BigQuerySource(query=query, use_standard_sql=True)
                     | 'StandardizeSubset' >> beam.ParDo(
                         StandardizeSubset(schema))
-                    )
+                    ))
 
 
 
