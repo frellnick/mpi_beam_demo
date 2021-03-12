@@ -29,4 +29,9 @@ def filter_mapped_columns(source_columns:list, keep_columns:list) -> list:
 
 class SubsetMapped(beam.DoFn):
     def __init__(self, colmap=colmap):
-        self.colmap = colmap
+        self.keep_columns = list(colmap.keys())
+
+    def process(self, row:dict):
+        rcols = list(row.keys())
+        mapped_columns = filter_mapped_columns(rcols, self.keep_columns)
+        yield {k: row[k] for k in mapped_columns}

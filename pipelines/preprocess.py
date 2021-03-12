@@ -15,6 +15,9 @@ from utils.load import (
 from utils.filters import (
     SubsetMapped
 )
+from utils.standardize import (
+    StandardizeSubset
+)
 
 
 config = get_config()
@@ -47,29 +50,21 @@ class _ReadData(beam.PTransform):
                         self._handle,
                         skip_header_lines=1
                         )
-                    | 'ParseCSV' >> beam.Map(csv_coder))
+                    | 'ParseCSV' >> beam.Map(csv_coder)
+                    | 'StandardizeSubset' >> beam.ParDo(
+                        StandardizeSubset(schema))
+                    )
 
         else:
             # The input is BigQuery table name(s)
+            schema = None
             query = make_standard_sql(self._handle)
             return (pipeline
                     | 'ReadFromBigQuery' >> beam.io.Read(
                         beam.io.BigQuerySource(query=query, use_standard_sql=True)
-                    ))
-
-
-
-class _StandardizeData(beam.PTransform):
-    """Wrapper for standardizing data elements"""
-
-    def __init__(self, mode=None):
-        self._mode = mode 
-
-    def clean_subset(self, collection:beam.PCollection):
-        return (
-            collection
-            | 'SubsetRow' >> beam.ParDo(SubsetMapped())
-        )
+                    | 'StandardizeSubset' >> beam.ParDo(
+                        StandardizeSubset(schema))
+                    )
 
 
 
@@ -80,6 +75,7 @@ def run_preprocess(pipeline, handle):
         handle = os.path.join(config.LOCAL_FILE_DIR, handle)
 
     r = _ReadData(handle)
-    s = _StandardizeData()
-    return r.expand(pipeline), s.clean_subset(r)
+    rd = r.expand(pipeline)
+
+    return rd
     

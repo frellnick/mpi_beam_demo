@@ -39,17 +39,17 @@ def run(argv=None):
         ##########################
         # Load / Preprocess Data #
         ##########################
-
+        sdata = run_preprocess(p, known_args.input)
+        _ = (
+            sdata
+            | beam.Map(print))
 
 
         #########################
         # Creating the DataView #
         #########################
 
-        raw, subset = run_preprocess(p, known_args.input)
-        _ = (
-            raw
-            | beam.Map(print))
+
         
         
     

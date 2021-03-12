@@ -5,6 +5,7 @@ Prepare loading mechanism
 """
 
 from settings import get_config
+from assets.mapping import is_mapped
 
 from apache_beam.io.textio import ReadFromText
 
@@ -33,10 +34,12 @@ def make_csv_coder(schema):
     def _marshal_into_schema(columns, schema):
         res = {}
         for i, k in enumerate(schema.keys()):
-            if i < len(columns):
-                res[k] = columns[i]
+            # Rename k
+            std, err = is_mapped(k)
+            if not err:
+                res[std] = columns[i]
             else:
-                break
+                res[k] = columns[i]
         return res
 
     def _coder(element):

@@ -1,14 +1,17 @@
 """
-standardize Dataframe deferred
+Standardization classes
 
-Apply function to standardize fields in a dataframe
+Compose dynamic standardizer and yield callable DoFn
 """
+
+
+import apache_beam as beam
 
 
 from utils.compose import composite_function
 from assets.mapping import is_mapped
 
-from .transforms.standardization_transforms import transform_classes
+from utils.standard_transforms.standardization_transforms import transform_classes
 
 class StandardizeTransformer():
 
@@ -32,4 +35,9 @@ class StandardizeTransformer():
 
 
 
+class StandardizeSubset(beam.DoFn):
+    def __init__(self, columns):
+        self._standardizer = StandardizeTransformer(columns)
 
+    def process(self, element):
+        yield self._standardizer(element)
